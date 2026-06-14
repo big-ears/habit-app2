@@ -453,7 +453,20 @@ function updateHabitPlaceholder() {
   const cat = document.getElementById('h-cat').value;
   document.getElementById('h-title').placeholder = CAT_PLACEHOLDER[cat] || '예: 자세와 시선';
 }
+  
+// 이벤트 리스너 추가 (중요)
+document.addEventListener('DOMContentLoaded', () => {
+  const catSelect = document.getElementById('h-cat');
+  
+  if (catSelect) {
+    // 1. 사용자가 변경할 때마다 업데이트
+    catSelect.addEventListener('change', updateHabitPlaceholder);
 
+    // 2. [추가] 페이지가 로드될 때 현재 선택된 값 기준으로 즉시 실행
+    updateHabitPlaceholder();
+  }
+});
+  
 function openHabitModal(id) {
   editingHabitId = id || null;
   if (id) {
