@@ -443,29 +443,32 @@ function renderHabits() {
   `).join('');
 }
 
-const CAT_PLACEHOLDER = {
-  body:    '예: 자세와 시선',
-  speech:  '예: 말이 느리고 적다',
-  consume: '예: 적게, 오래, 잘'
-};
+// 1. 데이터 정의
+  const CAT_PLACEHOLDER = {
+    body:    '예: 자세와 시선',
+    speech:  '예: 말이 느리고 적다',
+    consume: '예: 적게, 오래, 잘'
+  };
 
-function updateHabitPlaceholder() {
-  const cat = document.getElementById('h-cat').value;
-  document.getElementById('h-title').placeholder = CAT_PLACEHOLDER[cat] || '예: 자세와 시선';
-}
-  
-// 이벤트 리스너 추가 (중요)
-document.addEventListener('DOMContentLoaded', () => {
-  const catSelect = document.getElementById('h-cat');
-  
-  if (catSelect) {
-    // 1. 사용자가 변경할 때마다 업데이트
-    catSelect.addEventListener('change', updateHabitPlaceholder);
-
-    // 2. [추가] 페이지가 로드될 때 현재 선택된 값 기준으로 즉시 실행
-    updateHabitPlaceholder();
+  // 2. 변경 함수
+  function updateHabitPlaceholder() {
+    const catSelect = document.getElementById('h-cat');
+    const titleInput = document.getElementById('h-title');
+    
+    // 만약 요소가 존재한다면 placeholder 변경
+    if (catSelect && titleInput) {
+      titleInput.placeholder = CAT_PLACEHOLDER[catSelect.value] || '예: 자세와 시선';
+    }
   }
-});
+
+  // 3. 페이지 로드 시 이벤트 연결 및 즉시 실행
+  document.addEventListener('DOMContentLoaded', () => {
+    const catSelect = document.getElementById('h-cat');
+    if (catSelect) {
+      catSelect.addEventListener('change', updateHabitPlaceholder);
+      updateHabitPlaceholder(); // 페이지 열릴 때 즉시 실행
+    }
+  });
   
 function openHabitModal(id) {
   editingHabitId = id || null;
