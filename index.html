@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="습관">
+<title>나의 습관</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f7;
+    --bg3: #efefef;
+    --border: #e0e0e0;
+    --border2: #c8c8c8;
+    --text: #111111;
+    --text2: #666666;
+    --text3: #aaaaaa;
+    --shadow: 0 2px 0 #d0d0d0;
+    --shadow-sm: 0 1px 0 #d8d8d8;
+    --accent: #111111;
+    --red: #cc2222;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 72px;
+  }
+
+  header {
+    padding: 52px 20px 16px;
+    border-bottom: 1.5px solid var(--text);
+  }
+  header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  header p { font-size: 12px; color: var(--text2); margin-top: 3px; letter-spacing: 0.02em; }
+
+  .filter-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-bar button {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--text3);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    margin-bottom: -1px;
+  }
+  .filter-bar button.active {
+    color: var(--text);
+    border-bottom-color: var(--text);
+  }
+
+  main { padding: 20px; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin: 20px 0 10px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* 카드 공통 */
+  .habit-card, .lang-card {
+    background: var(--bg);
+    border: 1.5px solid var(--text);
+    box-shadow: var(--shadow);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .habit-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.2px; }
+  .habit-desc { font-size: 12px; color: var(--text2); line-height: 1.65; }
+  .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+  .btn-edit, .btn-del {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border: 1px solid var(--border2);
+    background: var(--bg);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    color: var(--text2);
+    letter-spacing: 0.02em;
+  }
+  .btn-del { color: var(--red); border-color: var(--red); }
+  .btn-edit:active { background: var(--bg3); box-shadow: none; transform: translateY(1px); }
+  .btn-del:active { background: #fff0f0; box-shadow: none; transform: translateY(1px); }
+
+  /* 언어교체 카드 */
+  .lang-old { font-size: 12px; color: var(--red); margin-bottom: 4px; }
+  .lang-arrow { font-size: 10px; color: var(--text3); margin-bottom: 4px; letter-spacing: 0.05em; }
+  .lang-new { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .lang-why {
+    font-size: 11px;
+    color: var(--text2);
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  /* 추가 버튼 */
+  .add-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1.5px dashed var(--border2);
+    background: transparent;
+    color: var(--text3);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+  .add-btn:active { background: var(--bg2); }
+
+  /* 모달 */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg);
+    border-top: 2px solid var(--text);
+    padding: 20px 20px 40px;
+    width: 100%;
+    max-width: 480px;
+  }
+  .modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+  .modal label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 5px;
+    margin-top: 14px;
+  }
+  .modal input, .modal textarea, .modal select {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border2);
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    border-radius: 0;
+    -webkit-appearance: none;
+  }
+  .modal textarea { resize: none; height: 68px; line-height: 1.5; }
+  .modal input:focus, .modal textarea:focus, .modal select:focus { border-color: var(--text); }
+  .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
+  .btn-cancel {
+    flex: 1; padding: 12px;
+    border: 1.5px solid var(--border2);
+    background: var(--bg);
+    box-shadow: var(--shadow-sm);
+    color: var(--text2); font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+  .btn-save {
+    flex: 2; padding: 12px;
+    border: 1.5px solid var(--text);
+    background: var(--text);
+    box-shadow: var(--shadow);
+    color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-cancel:active { box-shadow: none; transform: translateY(1px); }
+  .btn-save:active { box-shadow: none; transform: translateY(1px); }
+
+  /* 바텀 탭 */
+  .bottom-tab {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg);
+    border-top: 1.5px solid var(--text);
+    display: flex;
+    padding: 0 0 20px;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px 0 0;
+    color: var(--text3);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .tab-item.active { color: var(--text); }
+  .tab-dot {
+    width: 4px; height: 4px;
+    background: var(--text);
+    border-radius: 50%;
+    margin-bottom: 2px;
+    opacity: 0;
+  }
+  .tab-item.active .tab-dot { opacity: 1; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* 다짐 박스 */
+  .affirmation-box {
+    border: 1.5px solid var(--text);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text2);
+    font-style: italic;
+    border-left-width: 4px;
+  }
+  .affirmation-name { font-size: 11px; color: var(--text3); margin-top: 8px; font-style: normal; font-weight: 500; letter-spacing: 0.03em; }
+
+  .empty { color: var(--text3); font-size: 13px; padding: 24px 0; text-align: center; letter-spacing: 0.03em; }
+  .cat-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>나의 습관</h1>
+  <p id="today-date"></p>
+</header>
+
+<div id="page-habits" class="page active">
+  <div class="filter-bar">
+    <button class="active" onclick="filterHabits('all', this)">전체</button>
+    <button onclick="filterHabits('body', this)">몸과 공간</button>
+    <button onclick="filterHabits('speech', this)">말과 태도</button>
+    <button onclick="filterHabits('consume', this)">선택과 소비</button>
+  </div>
+  <main>
+    <div id="habits-list"></div>
+    <button class="add-btn" onclick="openHabitModal()">+ 행동습관 추가</button>
+  </main>
+</div>
+
+<div id="page-language" class="page">
+  <main>
+    <div class="section-label">언어 교체 훈련</div>
+    <div id="lang-list"></div>
+    <button class="add-btn" onclick="openLangModal()">+ 언어 패턴 추가</button>
+  </main>
+</div>
+
+<div id="page-today" class="page">
+  <main>
+    <div class="section-label">오늘의 다짐</div>
+    <div class="affirmation-box">
+      "덕이 없으면 덕이 있는 척이라도 하라.<br>그래서 좀 더 나은 사람이 되기 위해, 오늘도 한 걸음."
+      <div class="affirmation-name">— 공자, 그리고 나</div>
+    </div>
+    <div class="section-label">오늘 실천할 습관</div>
+    <div id="today-picks"></div>
+    <button class="add-btn" style="margin-top:10px" onclick="refreshToday()">↻ 다시 뽑기</button>
+  </main>
+</div>
+
+<!-- 행동습관 모달 -->
+<div class="modal-overlay" id="habit-modal">
+  <div class="modal">
+    <h3 id="habit-modal-title">행동습관 추가</h3>
+    <label>제목</label>
+    <input id="h-title" type="text" placeholder="예: 자세와 시선">
+    <label>설명</label>
+    <textarea id="h-desc" placeholder="구체적인 실천 방법을 적어요"></textarea>
+    <label>분류</label>
+    <select id="h-cat">
+      <option value="body">몸과 공간</option>
+      <option value="speech">말과 태도</option>
+      <option value="consume">선택과 소비</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('habit-modal')">취소</button>
+      <button class="btn-save" onclick="saveHabit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 언어교체 모달 -->
+<div class="modal-overlay" id="lang-modal">
+  <div class="modal">
+    <h3 id="lang-modal-title">언어 패턴 추가</h3>
+    <label>기존 언어 (감정 모드)</label>
+    <input id="l-old" type="text" placeholder="예: 나는 왜 이렇게 못하지">
+    <label>교체 언어 (탐색 모드)</label>
+    <input id="l-new" type="text" placeholder="예: 내가 과소평가한 게 뭐지?">
+    <label>왜 효과적인가</label>
+    <textarea id="l-why" placeholder="이 교체가 왜 도움이 되는지 적어요"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('lang-modal')">취소</button>
+      <button class="btn-save" onclick="saveLang()">저장</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-tab">
+  <button class="tab-item active" onclick="switchPage('habits', this)">
+    <div class="tab-dot"></div>
+    <span>행동습관</span>
+  </button>
+  <button class="tab-item" onclick="switchPage('language', this)">
+    <div class="tab-dot"></div>
+    <span>언어교체</span>
+  </button>
+  <button class="tab-item" onclick="switchPage('today', this)">
+    <div class="tab-dot"></div>
+    <span>오늘</span>
+  </button>
+</nav>
+
+<script>
+const CAT_LABEL = { body: '몸과 공간', speech: '말과 태도', consume: '선택과 소비' };
+
+const DEFAULT_HABITS = [
+  { id: 1, title: '자세와 시선', desc: '등받이에 기대지 않고, 걸을 때 시선이 약간 위를 향함. 몸이 먼저 인상을 만든다.', cat: 'body' },
+  { id: 2, title: '일관된 향기', desc: '비싼 향수보다 같은 향을 꾸준히. 그 사람만의 인상은 반복에서 생긴다.', cat: 'body' },
+  { id: 3, title: '보이지 않는 공간 정돈', desc: '가방 안, 지갑, 책상. 남이 안 보는 곳이 기준선이 된다.', cat: 'body' },
+  { id: 4, title: '말이 느리고 적다', desc: '급하게 설명하거나 과하게 웃지 않음. 침묵을 불편해하지 않는다.', cat: 'speech' },
+  { id: 5, title: '끝까지 듣기', desc: '상대 말이 끝나기 전에 끼어들지 않음. 이것만으로도 인상이 달라진다.', cat: 'speech' },
+  { id: 6, title: '불평은 조용히', desc: '불만이 있어도 공개적으로 드러내지 않음. 해결하거나 침묵한다.', cat: 'speech' },
+  { id: 7, title: '적게, 오래, 잘', desc: '많이 갖기보다 선택한 것을 오래 쓴다. 소비보다 경험에 투자.', cat: 'consume' },
+];
+
+const DEFAULT_LANGS = [
+  { id: 1, old: '나는 왜 이렇게 못하지', next: '내가 과소평가한 게 뭐지?', why: '\'나\'가 아닌 \'상황\'을 겨냥. 자기비하를 분석으로 전환.' },
+  { id: 2, old: '완전히 망쳤어', next: '어느 지점에서 판단이 틀렸지?', why: '전체 실패를 특정 결정 지점으로 좁혀, 수정 가능한 단위로 만듦.' },
+  { id: 3, old: '다들 나를 어떻게 볼까', next: '이게 나한테 뭘 가르치려는 거지?', why: '외부 시선에서 내부 학습으로 초점 이동.' },
+  { id: 4, old: '또 실패했어', next: '이 패턴이 몇 번째지? 왜 반복되지?', why: '감정적 자책을 패턴 인식으로 전환.' },
+  { id: 5, old: '이건 내 한계야', next: '지금 이 시점의 한계야. 뭐가 부족했지?', why: '고정된 나 → 현재 좌표. 성장 가능성을 언어 안에 내포.' },
+];
+
+let habits = JSON.parse(localStorage.getItem('habits') || 'null') || DEFAULT_HABITS;
+let langs = JSON.parse(localStorage.getItem('langs') || 'null') || DEFAULT_LANGS;
+let editingHabitId = null;
+let editingLangId = null;
+let currentFilter = 'all';
+
+function save() {
+  localStorage.setItem('habits', JSON.stringify(habits));
+  localStorage.setItem('langs', JSON.stringify(langs));
+}
+function nextId(arr) { return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+
+const d = new Date();
+document.getElementById('today-date').textContent =
+  d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+
+function switchPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'today') refreshToday();
+}
+
+function filterHabits(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHabits();
+}
+
+function renderHabits() {
+  const list = document.getElementById('habits-list');
+  const filtered = currentFilter === 'all' ? habits : habits.filter(h => h.cat === currentFilter);
+  if (!filtered.length) { list.innerHTML = '<p class="empty">아직 습관이 없어요</p>'; return; }
+  list.innerHTML = filtered.map(h => `
+    <div class="habit-card">
+      <div class="cat-badge">${CAT_LABEL[h.cat] || ''}</div>
+      <div class="habit-title">${h.title}</div>
+      <div class="habit-desc">${h.desc}</div>
+      <div class="card-actions">
+        <button class="btn-edit" onclick="editHabit(${h.id})">수정</button>
+        <button class="btn-del" onclick="deleteHabit(${h.id})">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openHabitModal(id) {
+  editingHabitId = id || null;
+  if (id) {
+    const h = habits.find(x => x.id === id);
+    document.getElementById('habit-modal-title').textContent = '행동습관 수정';
+    document.getElementById('h-title').value = h.title;
+    document.getElementById('h-desc').value = h.desc;
+    document.getElementById('h-cat').value = h.cat;
+  } else {
+    document.getElementById('habit-modal-title').textContent = '행동습관 추가';
+    document.getElementById('h-title').value = '';
+    document.getElementById('h-desc').value = '';
+    document.getElementById('h-cat').value = 'body';
+  }
+  document.getElementById('habit-modal').classList.add('open');
+}
+function editHabit(id) { openHabitModal(id); }
+
+function saveHabit() {
+  const title = document.getElementById('h-title').value.trim();
+  const desc = document.getElementById('h-desc').value.trim();
+  const cat = document.getElementById('h-cat').value;
+  if (!title) return;
+  if (editingHabitId) {
+    const h = habits.find(x => x.id === editingHabitId);
+    h.title = title; h.desc = desc; h.cat = cat;
+  } else {
+    habits.push({ id: nextId(habits), title, desc, cat });
+  }
+  save(); closeModal('habit-modal'); renderHabits();
+}
+
+function deleteHabit(id) {
+  if (!confirm('삭제할까요?')) return;
+  habits = habits.filter(h => h.id !== id);
+  save(); renderHabits();
+}
+
+function renderLangs() {
+  const list = document.getElementById('lang-list');
+  if (!langs.length) { list.innerHTML = '<p class="empty">아직 언어 패턴이 없어요</p>'; return; }
+  list.innerHTML = langs.map(l => `
+    <div class="lang-card">
+      <div class="lang-old">✕  "${l.old}"</div>
+      <div class="lang-arrow">↓  이렇게 바꾸면</div>
+      <div class="lang-new">✓  "${l.next}"</div>
+      <div class="lang-why">${l.why}</div>
+      <div class="card-actions">
+        <button class="btn-edit" onclick="editLang(${l.id})">수정</button>
+        <button class="btn-del" onclick="deleteLang(${l.id})">삭제</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openLangModal(id) {
+  editingLangId = id || null;
+  if (id) {
+    const l = langs.find(x => x.id === id);
+    document.getElementById('lang-modal-title').textContent = '언어 패턴 수정';
+    document.getElementById('l-old').value = l.old;
+    document.getElementById('l-new').value = l.next;
+    document.getElementById('l-why').value = l.why;
+  } else {
+    document.getElementById('lang-modal-title').textContent = '언어 패턴 추가';
+    document.getElementById('l-old').value = '';
+    document.getElementById('l-new').value = '';
+    document.getElementById('l-why').value = '';
+  }
+  document.getElementById('lang-modal').classList.add('open');
+}
+function editLang(id) { openLangModal(id); }
+
+function saveLang() {
+  const old = document.getElementById('l-old').value.trim();
+  const next = document.getElementById('l-new').value.trim();
+  const why = document.getElementById('l-why').value.trim();
+  if (!old || !next) return;
+  if (editingLangId) {
+    const l = langs.find(x => x.id === editingLangId);
+    l.old = old; l.next = next; l.why = why;
+  } else {
+    langs.push({ id: nextId(langs), old, next, why });
+  }
+  save(); closeModal('lang-modal'); renderLangs();
+}
+
+function deleteLang(id) {
+  if (!confirm('삭제할까요?')) return;
+  langs = langs.filter(l => l.id !== id);
+  save(); renderLangs();
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function refreshToday() {
+  const picks = document.getElementById('today-picks');
+  const chosen = [...habits].sort(() => Math.random() - 0.5).slice(0, Math.min(3, habits.length));
+  if (!chosen.length) { picks.innerHTML = '<p class="empty">습관을 먼저 추가해요</p>'; return; }
+  picks.innerHTML = chosen.map(h => `
+    <div class="habit-card">
+      <div class="cat-badge">${CAT_LABEL[h.cat] || ''}</div>
+      <div class="habit-title">${h.title}</div>
+      <div class="habit-desc">${h.desc}</div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+renderHabits();
+renderLangs();
+</script>
+</body>
+</html>
