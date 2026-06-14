@@ -334,10 +334,12 @@
     <label>설명</label>
     <textarea id="h-desc" placeholder="구체적인 실천 방법을 적어요"></textarea>
     <label>분류</label>
-    <select id="h-cat" onchange="updateHabitPlaceholder()">
-      <option value="body">몸과 공간</option>
-      <option value="speech">말과 태도</option>
-      <option value="consume">선택과 소비</option>
+    <!-- 모달 내부의 select 부분 -->
+    <select id="habit-category">
+      <option value="전체">전체</option>
+      <option value="몸과 공간">몸과 공간</option>
+      <option value="말과 태도">말과 태도</option>
+      <option value="선택과 소비">선택과 소비</option>
     </select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('habit-modal')">취소</button>
@@ -471,6 +473,26 @@ function openHabitModal(id) {
   updateHabitPlaceholder();
   document.getElementById('habit-modal').classList.add('open');
 }
+
+// +행동습관 추가 버튼 클릭 이벤트 함수 예시
+function openAddModal() {
+    // 1. 현재 선택된(.active) 필터 탭을 찾습니다.
+    const activeTab = document.querySelector('.filter-bar button.active');
+    
+    // 2. 탭의 텍스트 값을 가져옵니다. (탭 텍스트가 option value와 일치해야 합니다)
+    const categoryValue = activeTab ? activeTab.innerText : '전체';
+
+    // 3. 모달 내부의 select 요소를 찾아 값을 설정합니다.
+    const selectElement = document.getElementById('habit-category');
+    if (selectElement) {
+        selectElement.value = categoryValue;
+    }
+
+    // 4. 모달을 엽니다.
+    document.querySelector('.modal-overlay').classList.add('open');
+}
+
+  
 function editHabit(id) { openHabitModal(id); }
 
 function saveHabit() {
