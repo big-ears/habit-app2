@@ -563,6 +563,19 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 
 renderHabits();
 renderLangs();
+// 날짜를 표시할 요소를 가져옵니다.
+    const dateElement = document.getElementById('today-date');
+
+    // 현재 날짜 정보를 가져옵니다.
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
+    const date = today.getDate();
+
+    // 가져온 날짜 정보를 'YYYY.MM.DD' 형식으로 만들어 요소의 텍스트로 넣어줍니다.
+    dateElement.innerText = `${year}.${month}.${date}`;
+
 </script>
+  
 </body>
 </html>
