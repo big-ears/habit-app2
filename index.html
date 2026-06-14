@@ -474,23 +474,7 @@ function openHabitModal(id) {
   document.getElementById('habit-modal').classList.add('open');
 }
 
-// +행동습관 추가 버튼 클릭 이벤트 함수 예시
-function openAddModal() {
-    // 1. 현재 선택된(.active) 필터 탭을 찾습니다.
-    const activeTab = document.querySelector('.filter-bar button.active');
-    
-    // 2. 탭의 텍스트 값을 가져옵니다. (탭 텍스트가 option value와 일치해야 합니다)
-    const categoryValue = activeTab ? activeTab.innerText : '전체';
 
-    // 3. 모달 내부의 select 요소를 찾아 값을 설정합니다.
-    const selectElement = document.getElementById('habit-category');
-    if (selectElement) {
-        selectElement.value = categoryValue;
-    }
-
-    // 4. 모달을 엽니다.
-    document.querySelector('.modal-overlay').classList.add('open');
-}
 
   
 function editHabit(id) { openHabitModal(id); }
