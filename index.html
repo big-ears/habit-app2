@@ -593,6 +593,57 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 
 renderHabits();
 renderLangs();
+
+// 1. 데이터 정의
+  const CAT_PLACEHOLDER = {
+    body:    '예: 자세와 시선',
+    speech:  '예: 말이 느리고 적다',
+    consume: '예: 적게, 오래, 잘'
+  };
+
+  // 2. Placeholder 업데이트 함수
+  function updateHabitPlaceholder() {
+    const catSelect = document.getElementById('h-cat');
+    const titleInput = document.getElementById('h-title');
+    
+    if (catSelect && titleInput) {
+      titleInput.placeholder = CAT_PLACEHOLDER[catSelect.value] || '예: 자세와 시선';
+    }
+  }
+
+  // 3. 모달 열기 및 탭 동기화 함수
+  function openAddModal() {
+    // 현재 활성화된 상단 탭 찾기
+    const activeTab = document.querySelector('.filter-bar button.active');
+    // activeTab에 data-cat 값이 있다면 가져오고, 없으면 기본값 'body'
+    const activeCategory = activeTab ? activeTab.getAttribute('data-cat') : 'body';
+
+    const catSelect = document.getElementById('h-cat');
+    if (catSelect) {
+      catSelect.value = activeCategory;
+      updateHabitPlaceholder(); // 동기화 후 placeholder도 즉시 갱신
+    }
+
+    // 모달 표시
+    document.querySelector('.modal-overlay').classList.add('open');
+  }
+
+  // 4. 이벤트 리스너 설정
+  document.addEventListener('DOMContentLoaded', () => {
+    // 드롭다운 변경 시 placeholder 변경
+    const catSelect = document.getElementById('h-cat');
+    if (catSelect) {
+      catSelect.addEventListener('change', updateHabitPlaceholder);
+    }
+
+    // "행동습관 추가" 버튼 클릭 시 모달 열기 연결
+    // HTML에 있는 버튼에 onclick="openAddModal()"을 추가하거나 아래처럼 연결
+    const addBtn = document.querySelector('.add-btn'); 
+    if (addBtn) {
+      addBtn.addEventListener('click', openAddModal);
+    }
+  });
+  
 </script>
 </body>
 </html>
